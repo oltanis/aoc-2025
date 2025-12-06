@@ -33,7 +33,7 @@ pub fn p1() -> Option<i128> {
         for num in input1..input2 + 1{
             match digit_checker(num.try_into().unwrap()){
                 true => {
-                    println!("ID {num} IS NOT A VALID ID");
+                    println!("ID {num} IS NOT A VALID ID. ADDING");
                     ids += num;
                 },
                 false => continue,
