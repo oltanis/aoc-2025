@@ -9,7 +9,35 @@ pub fn parse_range(ranges: &mut Vec<(i64, i64)>, range: String) {
     ranges.push((range_min, range_max));
 }
 
-pub fn parse_range2(ranges: &mut Vec<(i64, i64)>, range: String) {}
+pub fn parse_range2(ranges: &mut Vec<(i64, i64)>, range: String) {
+    let (a, b) = range.split_once('-').unwrap();
+    let range_min = a.trim().parse::<i64>().unwrap();
+    let range_max = b.trim().parse::<i64>().unwrap();
+    let mut ranges_upt: Vec<(i64, i64)> = Vec::new();
+    for &(existing_min, existing_max) in ranges.iter() {
+        match (existing_min, existing_max) {
+            (existing_min, existing_max) if range_min < existing_min => {
+                ranges_upt.push((range_min, existing_max));
+            },
+            (existing_min, existing_max) if range_max > existing_max => {
+                ranges_upt.push((existing_min, range_max));
+            },
+            (existing_min, existing_max) if range_min <= existing_min && range_max >= existing_max => {
+                ranges_upt.push((range_min, range_max));
+            },
+
+            (existing_min, existing_max) if range_min <= existing_max && range_max >= existing_min => {
+                let new_min = existing_min.min(range_min);
+                let new_max = existing_max.max(range_max);
+                ranges_upt.push((new_min, new_max));
+            },
+            _ => {}
+        }
+    }
+    for (min, max) in ranges_upt{
+        ranges.push((min, max));
+    }
+}
 
 pub fn check_date(ranges: &[(i64, i64)], ids: &mut Vec<i64>) -> Option<i64> {
     let mut fresh_ids = 0;
@@ -60,7 +88,7 @@ pub fn p1() -> Option<i64> {
 }
 
 pub fn p2() -> Option<i64> {
-    let file = File::open("../../data/d5/input").ok()?;
+    let file = File::open("../../data/d5/input-example").ok()?;
     let reader = BufReader::new(file);
     let mut change: bool = false;
     let mut ranges: Vec<(i64, i64)> = Vec::new();
@@ -74,7 +102,7 @@ pub fn p2() -> Option<i64> {
                 _ => parse_range2(&mut ranges, range_str),
             }
         } else {
-            //println!("ID: {range_str}");
+            println!("ID: {range_str}");
             ids.push(range_str.parse().unwrap());
         }
     }
